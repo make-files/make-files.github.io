@@ -1,1 +1,0 @@
-curl --create-dirs --silent --location --output "artifacts/make/$1" "https://makefiles.dev/$1?nonce=$(date +%s)"
