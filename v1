@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# TARGET is the local filesystem path to the file being requested by make.
+#
+# It must be of the form ".makefiles/<REPO>/v<VERSION>/<NAME>", for example
+# ".makefiles/lang-go1/v1/path/to/file".
+TARGET="$1"
+
+if [[ ! $TARGET =~ ^.makefiles/([^/]+)/v([0-9]+)/(.+) ]]; then
+    echo "invalid target: '${TARGET}', format must be '.makefiles/<REPO>/v<VERSION>/<NAME>'" >2
+    exit 1
+fi
+
+# REPO is the name of the GitHub repository that contains the target, for
+# example "lang-go1".
+REPO="${BASH_REMATCH[1]}"
+
+# BRANCH is the name of the branch of the repository that is downloaded.
+BRANCH="master"
+
+# VERSION is the version of the target, for example "v1".
+VERSION="${BASH_REMATCH[2]}"
+
+# NAME is the filename of the target, without the repo and version information.
+# For example "path/to/file".
+NAME="${BASH_REMATCH[3]}"
+
+# ARCHIVE_URL is the URL of an archive containing the repository content.
+ARCHIVE_URL="https://github.com/make-files/${REPO}/archive/${BRANCH}.zip"
+
+# ARCHIVE_FILE is the path where the repository archive is cached locally.
+ARCHIVE_FILE=".makefiles/.cache/github/${REPO}.zip"
+
+# TARGET_IN_REPO is the path to the target file within the repository.
+TARGET_IN_REPO="make-resources/v${VERSION}/${NAME}"
+
+# TARGET_IN_ARCHIVE is the path to the target file within the archive.
+TARGET_IN_ARCHIVE="${REPO}-${BRANCH}/${TARGET_IN_REPO}"
+
+if [[ ! -f "$ARCHIVE_FILE" ]]; then
+    echo "downloading '${REPO}' repository"
+
+    curl \
+        --fail \
+        --silent \
+        --show-error \
+        --location \
+        --create-dirs \
+        --output "${ARCHIVE_FILE}" \
+        "${ARCHIVE_URL}?nonce=$(uuidgen)"
+fi
+
+TMPFILE=$(mktemp)
+if unzip -p "$ARCHIVE_FILE" "$TARGET_IN_ARCHIVE" > "$TMPFILE"; then
+    mkdir -p "$(dirname $TARGET)"
+    mv "$TMPFILE" "$TARGET"
+else
+    rm "$TMPFILE"
+    echo "unable to extract target '${TARGET}' from '${BRANCH}' branch of '${REPO}' repository at '${TARGET_IN_REPO}'" >2
+    exit 1
+fi
