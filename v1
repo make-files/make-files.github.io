@@ -4,7 +4,7 @@ set -euo pipefail
 # TARGET is the local filesystem path to the file being requested by make.
 #
 # It must be of the form ".makefiles/<REPO>/v<VERSION>/<NAME>", for example
-# ".makefiles/lang-go1/v1/path/to/file".
+# ".makefiles/go1/v1/path/to/file".
 TARGET="$1"
 
 if [[ ! $TARGET =~ ^.makefiles/([^/]+)/v([0-9]+)/(.+) ]]; then
@@ -13,8 +13,8 @@ if [[ ! $TARGET =~ ^.makefiles/([^/]+)/v([0-9]+)/(.+) ]]; then
 fi
 
 # REPO is the name of the GitHub repository that contains the target, for
-# example "lang-go1".
-REPO="${BASH_REMATCH[1]}"
+# example "go1".
+REPO="make-${BASH_REMATCH[1]}"
 
 # BRANCH is the name of the branch of the repository that is downloaded.
 BRANCH="master"
