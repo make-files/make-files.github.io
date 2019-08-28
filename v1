@@ -127,7 +127,7 @@ REPO=$(target_repo "$TARGET")
 VER=$(target_version "$TARGET")
 NAME=$(target_name "$TARGET")
 
-EXPECT_SPEC_VER=2
+EXPECT_SPEC_VER=1
 SPEC_VER="$(query "$REPO" "$VER" spec-version)"
 
 if [[ $SPEC_VER != $EXPECT_SPEC_VER ]]; then
