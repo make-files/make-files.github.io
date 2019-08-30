@@ -1,138 +1,24 @@
 #!/usr/bin/env bash
-test -z $MAKE_DEBUG || set -x
 set -euo pipefail
 
-#
-# fetch($repo) downloads an archive of a Git repository if it is not already in
-# the cache. It prints the path to the downloaded archive.
-#
-function fetch() {
-    local repo="$1"
+if [[ ! -d ".makefiles/lib/core" ]]; then
+    echo "downloading makefiles.dev core"
 
-    local url="https://github.com/make-files/make-$repo/archive/master.zip"
-    local output=".makefiles/.cache/github/$repo.zip"
+    tmpdir="$(mktemp -d)"
+    trap "rm -rf '$tmpdir'" EXIT
 
-    if [[ ! -f "$output" ]]; then
-        curl \
-            --fail \
-            --silent \
-            --show-error \
-            --location \
-            --create-dirs \
-            --output "$output" \
-            "$url?nonce=$(uuidgen)"
-    fi
+    curl \
+        --fail \
+        --silent \
+        --show-error \
+        --location \
+        --create-dirs \
+        --output "$tmpdir/archive.zip" \
+        "https://github.com/make-files/lib-core/archive/master.zip?nonce=$(uuidgen)"
 
-    echo "$output"
-}
-
-#
-# extract($repo, $version, $file) extracts a file from a specific version of
-# a Git repository. It prints the file content.
-#
-function extract() {
-    local repo="$1"
-    local version="$2"
-    local file="$3"
-
-    local archive=$(fetch "$repo")
-    unzip -p "$archive" "make-$repo-master/v$version/$file"
-}
-
-#
-# extract_to($repo, $version, $name, $target) extracts a single file from a
-# specific version of a Git repository and stores it in the given target path.
-#
-function extract_to() {
-    local repo="$1"
-    local version="$2"
-    local file="$3"
-    local target="$4"
-
-    local tmp="$(mktemp)"
-
-    if extract "$repo" "$version" "$file" > $tmp; then
-        mkdir -p $(dirname "$target")
-        mv "$tmp" "$target"
-    else
-        rm "$tmp"
-        return 1
-    fi
-}
-
-#
-# query($repo, $version, ...) executes the query.sh file within a specific
-# repository version.
-#
-function query() {
-    local repo="$1"
-    local version="$2"
-
-    local archive=$(fetch "$repo")
-    unzip -p "$archive" "make-$repo-master/v$version/query.sh" | bash /dev/stdin "${@:3}"
-}
-
-# Target files must have the form ".makefiles/<REPO>/v<VERSION>/<NAME>".
-TARGET_REGEXP="^.makefiles/([^/]+)/v([0-9]+)/(.+)"
-
-#
-# target_repo($target) prints the name of the Git repository containing the
-# given target file.
-#
-function target_repo() {
-    local target="$1"
-
-    if [[ ! "$target" =~ $TARGET_REGEXP ]]; then
-        return 1
-    fi
-
-    echo "${BASH_REMATCH[1]}"
-}
-
-#
-# target_version($target) prints the requested version of the given target file.
-#
-function target_version() {
-    local target="$1"
-
-    if [[ ! "$target" =~ $TARGET_REGEXP ]]; then
-        return 1
-    fi
-
-    echo "${BASH_REMATCH[2]}"
-}
-
-#
-# target_path($target) prints the name of the given target file, excluding the
-# repository and version information.
-#
-function target_name() {
-    local target="$1"
-
-    if [[ ! "$target" =~ $TARGET_REGEXP ]]; then
-        return 1
-    fi
-
-    echo "${BASH_REMATCH[3]}"
-}
-
-TARGET="$1"
-
-if [[ ! $TARGET =~ $TARGET_REGEXP ]]; then
-    echo "can not build '$TARGET', filename format must be '.makefiles/<REPO>/v<VERSION>/<NAME>'" >&2
-    exit 1
+    unzip -q "$tmpdir/archive.zip" -d "$tmpdir"
+    mkdir -p ".makefiles/lib"
+    mv "$tmpdir/lib-core-master/v1" ".makefiles/lib/core"
 fi
 
-REPO=$(target_repo "$TARGET")
-VER=$(target_version "$TARGET")
-NAME=$(target_name "$TARGET")
-
-EXPECT_SPEC_VER=1
-SPEC_VER="$(query "$REPO" "$VER" spec-version)"
-
-if [[ $SPEC_VER != $EXPECT_SPEC_VER ]]; then
-    echo "can not build '$TARGET', v$VER of '$REPO' uses version v$SPEC_VER of the specification, expected v$EXPECT_SPEC_VER" >&2
-    exit 1
-fi
-
-extract_to "$REPO" "$VER" "$NAME" "$TARGET"
+.makefiles/lib/core/mf build "$1"
