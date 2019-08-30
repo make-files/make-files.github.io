@@ -19,6 +19,8 @@ if [[ ! -d ".makefiles/lib/core" ]]; then
     unzip -q "$tmpdir/archive.zip" -d "$tmpdir"
     mkdir -p ".makefiles/lib"
     mv "$tmpdir/lib-core-master/v1" ".makefiles/lib/core"
+
+    .makefiles/lib/core/mf setup
 fi
 
 .makefiles/lib/core/mf build "$1"
