@@ -16,13 +16,13 @@ if [[ ! -d ".makefiles/lib/core" ]]; then
         --location \
         --create-dirs \
         --output "$tmpdir/archive.zip" \
-        "https://github.com/make-files/lib-core/archive/v${MF_VERSION}.zip?nonce=$(uuidgen)"
+        "https://github.com/make-files/lib-core/archive/v$MF_VERSION.zip?nonce=$(uuidgen)"
 
     unzip -q "$tmpdir/archive.zip" -d "$tmpdir"
     mkdir -p ".makefiles/lib"
-    mv "$tmpdir/lib-core-v${MF_VERSION}" ".makefiles/lib/core"
+    mv "$tmpdir/lib-core-v$MF_VERSION" ".makefiles/lib/core"
 
-    .makefiles/lib/core/mf setup
+    .makefiles/lib/core/mf install core
 fi
 
 .makefiles/lib/core/mf build "$1"
