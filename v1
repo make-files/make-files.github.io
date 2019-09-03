@@ -20,7 +20,7 @@ if [[ ! -d "$MF_PATH_ROOT/lib/core" ]]; then
         "https://github.com/make-files/lib-core/archive/v$MF_VERSION.zip?nonce=$(uuidgen)"
 
     echo "installing makefiles.dev core library"
-    "$tmpdir/lib-core-v$MF_VERSION/bin/install"
+    "$tmpdir/lib-core-$MF_VERSION/bin/install"
 fi
 
 "$MF_PATH_ROOT/bin/build" $1
