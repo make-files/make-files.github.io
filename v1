@@ -1,16 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# MF_PROJECT_ROOT must be defined in order to invoke the 'mf' binary.
 export MF_PROJECT_ROOT="$(pwd)"
 
-MF_VERSION="1"
-MF_ROOT="$MF_PROJECT_ROOT/.makefiles"
-MF="$MF_ROOT/lib/core/bin/mf"
-
-if [[ ! -d "$MF_ROOT/lib/core" ]]; then
+# Check if we've already got the core library.
+if [[ ! -d "./makefiles/lib/core" ]]; then
     tmpdir="$(mktemp -d)"
     trap "rm -rf '$tmpdir'" EXIT
 
+    # Download the core library.
     curl \
         --fail \
         --silent \
@@ -18,12 +17,19 @@ if [[ ! -d "$MF_ROOT/lib/core" ]]; then
         --location \
         --create-dirs \
         --output "$tmpdir/archive.zip" \
-        "https://github.com/make-files/lib-core/archive/v$MF_VERSION.zip?nonce=$(uuidgen)"
+        "https://github.com/make-files/lib-core/archive/v1.zip?nonce=$(uuidgen)"
 
+    # Unpack the library from the subdirectory that GitHub adds to downloaded
+    # archives into the .makefiles directory.
     unzip -q "$tmpdir/archive.zip" -d "$tmpdir"
-    mkdir -p "$MF_ROOT/lib"
-    mv "$tmpdir/lib-core-$MF_VERSION" "$MF_ROOT/lib/core"
-    "$MF" exec-hook core install
+    mkdir -p ".makefiles/lib"
+    mv "$tmpdir/lib-core-1" ".makefiles/lib/core"
+
+    # Invoke the on-install-hook, this will in turn install any other libraries
+    # that should be installed for this environment.
+    .makefiles/lib/core/bin/mf exec-hook core install
 fi
 
-"$MF" build "$1"
+# Finally, invoke the "build" command to produce the actual Makefile we're
+# trying to include.
+.makefiles/lib/core/bin/mf build "$1"
