@@ -2,9 +2,9 @@
 set -euo pipefail
 
 export MF_VERSION="${MF_VERSION:-1}"
-export MF_PATH_ROOT="${MF_PATH_ROOT:-$(pwd)/.makefiles}"
+export MF_ROOT="${MF_ROOT:-$(pwd)/.makefiles}"
 
-if [[ ! -d "$MF_PATH_ROOT/lib/core" ]]; then
+if [[ ! -d "$MF_ROOT/lib/core" ]]; then
     echo "downloading makefiles.dev core library"
 
     tmpdir="$(mktemp -d)"
@@ -19,10 +19,10 @@ if [[ ! -d "$MF_PATH_ROOT/lib/core" ]]; then
         --output "$tmpdir/archive.zip" \
         "https://github.com/make-files/lib-core/archive/v$MF_VERSION.zip?nonce=$(uuidgen)"
 
-    echo "installing makefiles.dev core library"
-
     unzip -q "$tmpdir/archive.zip" -d "$tmpdir"
-    "$tmpdir/lib-core-$MF_VERSION/bin/install"
+    mkdir -p "$MF_ROOT/lib"
+    mv "$tmpdir/lib-core-$MF_VERSION" "$MF_ROOT/lib/core"
+    "$MF_ROOT/lib/core/bin/install"
 fi
 
-"$MF_PATH_ROOT/bin/build" $1
+"$MF_ROOT/bin/mf" build "$1"
