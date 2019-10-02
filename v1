@@ -22,7 +22,7 @@ if [[ ! -d "$MF_ROOT/lib/core" ]]; then
     unzip -q "$tmpdir/archive.zip" -d "$tmpdir"
     mkdir -p "$MF_ROOT/lib"
     mv "$tmpdir/lib-core-$MF_VERSION" "$MF_ROOT/lib/core"
-    "$MF_ROOT/lib/core/bin/install"
+    "$MF_ROOT/lib/core/bin/install-hook"
 fi
 
 "$MF_ROOT/bin/mf" build "$1"
