@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-export MF_VERSION="${MF_VERSION:-1}"
-export MF_ROOT="${MF_ROOT:-$(pwd)/.makefiles}"
-export MF="$MF_ROOT/bin/mf"
+export MF_PROJECT_ROOT="$(pwd)"
+
+MF_VERSION="1"
+MF_ROOT="$MF_PROJECT_ROOT/.makefiles"
+MF="$MF_ROOT/lib/core/bin/mf"
 
 if [[ ! -d "$MF_ROOT/lib/core" ]]; then
-    echo "downloading makefiles.dev core library"
-
     tmpdir="$(mktemp -d)"
     trap "rm -rf '$tmpdir'" EXIT
 
@@ -23,7 +23,7 @@ if [[ ! -d "$MF_ROOT/lib/core" ]]; then
     unzip -q "$tmpdir/archive.zip" -d "$tmpdir"
     mkdir -p "$MF_ROOT/lib"
     mv "$tmpdir/lib-core-$MF_VERSION" "$MF_ROOT/lib/core"
-    "$MF_ROOT/lib/core/bin/install-hook"
+    "$MF" exec-hook core install
 fi
 
 "$MF" build "$1"
