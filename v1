@@ -3,6 +3,7 @@ set -euo pipefail
 
 export MF_VERSION="${MF_VERSION:-1}"
 export MF_ROOT="${MF_ROOT:-$(pwd)/.makefiles}"
+export MF="$MF_ROOT/bin/mf"
 
 if [[ ! -d "$MF_ROOT/lib/core" ]]; then
     echo "downloading makefiles.dev core library"
@@ -25,4 +26,4 @@ if [[ ! -d "$MF_ROOT/lib/core" ]]; then
     "$MF_ROOT/lib/core/bin/install-hook"
 fi
 
-"$MF_ROOT/bin/mf" build "$1"
+"$MF" build "$1"
