@@ -5,7 +5,7 @@ set -euo pipefail
 export MF_PROJECT_ROOT="$(pwd)"
 
 # Check if we've already got the core library.
-if [[ ! -d "./makefiles/lib/core" ]]; then
+if [[ ! -d ".makefiles/lib/core" ]]; then
     tmpdir="$(mktemp -d)"
     trap "rm -rf '$tmpdir'" EXIT
 
@@ -25,11 +25,11 @@ if [[ ! -d "./makefiles/lib/core" ]]; then
     mkdir -p ".makefiles/lib"
     mv "$tmpdir/lib-core-1" ".makefiles/lib/core"
 
-    # Invoke the on-install-hook, this will in turn install any other libraries
-    # that should be installed for this environment.
-    .makefiles/lib/core/bin/mf exec-hook core install
+    # Run the install command for the core library. Because it is already in the
+    # correct location this will simply run the install hooks.
+    .makefiles/lib/core/bin/install-lib core
 fi
 
-# Finally, invoke the "build" command to produce the actual Makefile we're
-# trying to include.
-.makefiles/lib/core/bin/mf build "$1"
+# Finally, invoke the build-resource command to produce the actual resource that
+# was requested.
+.makefiles/lib/core/bin/build-resource "$1"
