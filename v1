@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# MF_PROJECT_ROOT must be defined in order to invoke the 'mf' binary.
-export MF_PROJECT_ROOT="$(pwd)"
+# MF_PROJECT_ROOT must always be defined.
+export MF_PROJECT_ROOT="${MF_PROJECT_ROOT:-$(pwd)}"
 
 # Check if we've already got the core library.
 if [[ ! -d ".makefiles/lib/core" ]]; then
