@@ -3,6 +3,7 @@
 ## Usage
 
 ```Makefile
+-include .makefiles/Makefile
 -include .makefiles/pkg/<PACKAGE>/v<VERSION>/Makefile
 
 .makefiles/%:
