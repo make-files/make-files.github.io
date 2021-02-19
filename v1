@@ -6,6 +6,11 @@ export MF_PROJECT_ROOT="${MF_PROJECT_ROOT:-$(pwd)}"
 
 # Check if we've already got the core library.
 if [[ ! -d ".makefiles/lib/core" ]]; then
+    if [[ $MAKEFLAGS =~ (^|[^[:alnum:]_])j([^[:alnum:]_]|$) ]]; then
+        echo 'Run "make makefiles" before running make -j'
+        exit 1
+    fi
+
     tmpdir="$(mktemp -d)"
     trap "rm -rf '$tmpdir'" EXIT
 
