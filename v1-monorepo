@@ -26,7 +26,6 @@ if [[ ! -d ".makefiles" ]]; then
 
     # Unpack the archive from the subdirectory that GitHub adds into the .makefiles directory.
     unzip -q "$tmpdir/archive.zip" -d "$tmpdir"
-    mkdir -p ".makefiles/lib"
     mv "$tmpdir/makefiles-monorepo-integration" ".makefiles"
 
     # Run the install command for the core library. Because it is already in the
