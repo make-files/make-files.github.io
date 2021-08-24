@@ -22,11 +22,11 @@ if [[ ! -d ".makefiles" ]]; then
         --location \
         --create-dirs \
         --output "$tmpdir/archive.zip" \
-        "https://github.com/make-files/makefiles/archive/monorepo-integration.zip?nonce=$(uuidgen)"
+        "https://github.com/make-files/makefiles/archive/v1.zip?nonce=$(uuidgen)"
 
     # Unpack the archive from the subdirectory that GitHub adds into the .makefiles directory.
     unzip -q "$tmpdir/archive.zip" -d "$tmpdir"
-    mv "$tmpdir/makefiles-monorepo-integration" ".makefiles"
+    mv "$tmpdir/makefiles-1" ".makefiles"
 
     # Run the install command for the core library. Because it is already in the
     # correct location this will simply run the install hooks.
