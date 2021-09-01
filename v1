@@ -4,6 +4,11 @@ set -euo pipefail
 # MF_PROJECT_ROOT must always be defined.
 export MF_PROJECT_ROOT="${MF_PROJECT_ROOT:-$(pwd)}"
 
+# MF_BRANCH is the branch of the makefiles repository that is downloaded. This
+# is intended for testing purposes only and should be left set to the default of
+# "v1" for general use.
+export MF_BRANCH="${MF_BRANCH:-v1}"
+
 # Check if we've already got the makefiles.
 if [[ ! -d ".makefiles" ]]; then
     if [[ $MAKEFLAGS =~ (^|[^[:alnum:]_])j([^[:alnum:]_]|$) ]]; then
@@ -22,11 +27,11 @@ if [[ ! -d ".makefiles" ]]; then
         --location \
         --create-dirs \
         --output "$tmpdir/archive.zip" \
-        "https://github.com/make-files/makefiles/archive/v1.zip?nonce=$(uuidgen)"
+        "https://github.com/make-files/makefiles/archive/${MF_BRANCH}.zip?nonce=$(uuidgen)"
 
     # Unpack the archive from the subdirectory that GitHub adds into the .makefiles directory.
     unzip -q "$tmpdir/archive.zip" -d "$tmpdir"
-    mv "$tmpdir/makefiles-1" ".makefiles"
+    mv "$tmpdir/makefiles"-* ".makefiles"
 
     # Run the install command for the core library. Because it is already in the
     # correct location this will simply run the install hooks.
