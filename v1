@@ -19,6 +19,8 @@ if [[ ! -d ".makefiles" ]]; then
     tmpdir="$(mktemp -d)"
     trap "rm -rf '$tmpdir'" EXIT
 
+    nonce=$(head /dev/urandom | cksum | cut -d ' ' -f1)
+
     # Download the makefiles.
     curl \
         --fail \
@@ -27,7 +29,7 @@ if [[ ! -d ".makefiles" ]]; then
         --location \
         --create-dirs \
         --output "$tmpdir/archive.zip" \
-        "https://github.com/make-files/makefiles/archive/${MF_BRANCH}.zip?nonce=$(uuidgen)"
+        "https://github.com/make-files/makefiles/archive/${MF_BRANCH}.zip?nonce=${nonce}"
 
     # Unpack the archive from the subdirectory that GitHub adds into the .makefiles directory.
     unzip -q "$tmpdir/archive.zip" -d "$tmpdir"
